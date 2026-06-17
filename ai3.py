@@ -17,5 +17,5 @@ def prove(goal):
 
 val = prove("can_graduate")  
 print(val)     
-        
+
         
