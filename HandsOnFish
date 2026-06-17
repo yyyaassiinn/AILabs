@@ -9,7 +9,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
 
 # TODO: load the dataset
-df = pd.read_csv(r'C:\Users\Yassin\Downloads\Fish.csv')
+df = pd.read_csv(r'Fish.csv')
 # TODO: display the first rows
 print(df.head())
 # TODO: inspect basic information
