@@ -1,0 +1,121 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+
+# TODO: load the dataset
+df = pd.read_csv(r'C:\Users\Yassin\Downloads\Fish.csv')
+# TODO: display the first rows
+print(df.head())
+# TODO: inspect basic information
+print(df.info())
+le = LabelEncoder()
+# TODO: identify the target column and feature columns
+X = df.drop('Species',axis = 1)
+y = df['Species']
+y = le.fit_transform(y)
+
+X_train, X_test, y_train, y_test = train_test_split(
+ X,
+ y,
+ test_size = 0.2,
+ random_state = 42,
+ stratify = y
+)
+
+# Logistic Regression
+log_reg = Pipeline([
+ ("scaler", StandardScaler()),
+ ("model", LogisticRegression(
+ C = 1,
+ max_iter = 10,
+ random_state = 42
+ ))
+])
+log_reg.fit(X_train, y_train)
+log_pred = log_reg.predict(X_test)
+log_acc = accuracy_score(y_test, log_pred)
+print("logistic accuracy =",log_acc)
+
+# SVM
+svm_model = Pipeline([
+ ("scaler", StandardScaler()),
+ ("model", SVC(
+ kernel = 'linear',
+ C = 1,
+ gamma = 'scale'
+ ))
+])
+svm_model.fit(X_train, y_train)
+svm_pred = svm_model.predict(X_test)
+svm_acc = accuracy_score(y_test, svm_pred)
+print("SVM accuracy =",svm_acc)
+
+# KNN
+knn_model = Pipeline([
+ ("scaler", StandardScaler()),
+ ("model", KNeighborsClassifier(
+ n_neighbors = 5,
+ weights = 'uniform',
+ metric = 'minkowski'
+ ))
+])
+knn_model.fit(X_train, y_train)
+knn_pred = knn_model.predict(X_test)
+knn_acc = accuracy_score(y_test, knn_pred)
+print("KNN accuracy =",knn_acc)
+
+# KNN implementation from scratch
+class KNN_FromScratch:
+    def __init__(self, k=3):
+        self.k = k # number of neighbors
+    def fit(self, X, y):
+        # TODO: save X and y as instance variables
+        self.X = np.array(X)
+        self.Y = np.array(y)
+        pass
+    def euclidean_distance(self, x1, x2):
+        # TODO: implement distance calculation
+        return np.sqrt(np.sum((x1 - x2) ** 2))
+    def _predict(self, x):
+        """
+        Predict the label of a single sample.
+        Steps:
+        1. Compute distances to all training samples
+        2. Select k nearest neighbors
+        3. Perform majority voting
+        """
+        # TODO: implement prediction logic
+        distances = [self.euclidean_distance(x, x_train) for x_train in self.X]
+        k_indices = np.argsort(distances)[:self.k]
+        k_nearest_labels = [self.Y[i] for i in k_indices]
+        counts = np.bincount(k_nearest_labels)
+        return np.argmax(counts)
+    
+        pass
+    
+    def predict(self, X):
+        # TODO: loop over samples and call _predict
+        X = np.array(X)
+        return np.array([self._predict(x) for x in X])
+        pass
+    
+# Apply feature scaling (same as other models)
+scaler = StandardScaler()
+X_train_scale = scaler.fit_transform(X_train)
+X_test_scale = scaler.fit_transform(X_test)
+
+# Train model
+knn_scratch = KNN_FromScratch(k=5)
+# TODO: call fit function
+knn_scratch.fit(X_train_scale,y_train)
+# TODO: make predictions
+scratch_pred = knn_scratch.predict(X_test_scale)
+# TODO: compute accuracy using accuracy_score
+scratch_acc = accuracy_score(y_test, scratch_pred)
+print('Self implemented KKN accuracy =',scratch_acc)
